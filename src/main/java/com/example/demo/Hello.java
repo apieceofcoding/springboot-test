@@ -1,13 +1,11 @@
 package com.example.demo;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class Hello {
 
     private final String name;
-
-    public Hello(String name) {
-        this.name = name;
-    }
 }
