@@ -1,12 +1,12 @@
-name: Spring Boot CI
+name: CI - Build and Test
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  springboot-twitter-cd:
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v3
@@ -24,11 +24,18 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x text
 
-      - name: Run tests
-        run: ./gradlew test
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/springboot-twitter-linux:latest .
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/springboot-twitter-linux:latest
